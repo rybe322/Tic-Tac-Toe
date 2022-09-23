@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="index.js" defer></script>
+  <style>
+    h1 {
+      color: #F8FFE5;
+    }
+    .main-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #001524;
+      gap: 20px;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      grid-template-rows: repeat(3, 1fr);
+      height: 400px;
+      width: 400px;
+    }
+    .grid-container div {
+      border: 5px solid white;
+      background-color: #cc2936;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .grid-container div:hover {
+      background-color: #FFBD00;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <h1>TIC - TAC - TOE</h1>
+    <button id="new-game-button">New Game</button>
+    <div class="grid-container">
+    </div>
+  </div>
+</body>
+</html>
