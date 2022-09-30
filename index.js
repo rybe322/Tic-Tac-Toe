@@ -205,29 +205,52 @@ const Game = (() => {
 
   let gameWinner = ''
 
-  let thereIsAWinner = gameWinner !== ''
+  let thereIsAWinner = false
+
+  const setThereIsAWinner = (isWinner) => {
+    console.log('hello from setThereIsAWinner')
+    console.log(`thereIsAWinner currently : ${thereIsAWinner}`)
+    thereIsAWinner = isWinner
+    console.log(`there is a winner after change: ${thereIsAWinner}`)
+    
+  }
+
+  const getThereIsAWinner = () => thereIsAWinner
 
   const gridContainer = document.querySelector('.grid-container')
+
+  let currentPlayerIndex = 0;
+
+  const setCurrentPlayer = (PLAYER) => {
+    currentPlayerIndex = PLAYER
+  }
+
+  const getCurrentPlayer = () => players[currentPlayerIndex]
+
+  const switchPlayer = () => {
+    if (currentPlayerIndex === 0) {
+      currentPlayerIndex = 1
+    }
+    else {
+      currentPlayerIndex = 0
+    }
+  }
 
   const checkForWinner = () => {
     for (let i = 0; i < players.length ; i++) {
       let currentPlayerCombinations = players[i].getSpotCombinations()
-      console.log(currentPlayerCombinations)
       for(let j = 0; j < currentPlayerCombinations.length; j++) {
         if (WinningCombinations.checkForWinner(currentPlayerCombinations[j])) {
-          return true;
-          console.log(`set game winner to ${players[i].name}`)
-          gameWinner = players[i].name
-          thereIsAWinner = true;
-          console.log(`there is a winner from checkForWinner: ${thereIsAWinner}`)
+          console.log('checkForWinner TRUE')
+          setThereIsAWinner(true)
+          return
+        }
+        else { // DO I NEED THIS ELSE STATEMENT?
+          setThereIsAWinner(false)
         }
       }
     }
   }
-
-  const setPlayers = () => {
-  }
-
 
   const resetBoard = () => {
     roundCount = 0;
@@ -241,11 +264,8 @@ const Game = (() => {
   }
 
   const currentInfo = () => {
-    console.log(`Round count: ${roundCount}`)
-    console.log(`player[0] current spots: ${players[0].currentSpots}`)
-    console.log(`player[1] current spots: ${players[1].currentSpots}`)
-    console.log(`continuePlaying: ${thereIsAWinner}`)
-    console.log(`Current winner ${thereIsAWinner === false ? gameWinner : 'nowinner yet'}`)
+    console.log(`player[0] current spots: ${players[0].getSpots()}`)
+    console.log(`player[1] current spots: ${players[1].getSpots()}`)
   }
 
   const drawGrid = () => {
@@ -257,28 +277,27 @@ const Game = (() => {
     }
   }
 
-  return {gameWinner, players,checkForWinner, currentInfo, resetBoard, drawGrid}
+  return {gameWinner, players, checkForWinner, currentInfo, resetBoard, drawGrid, 
+          switchPlayer, getCurrentPlayer, setThereIsAWinner, getThereIsAWinner}
 } ) ()
 
 
-let currentPlayer = 0
-
-function switchPlayer() {
-  currentPlayer = (currentPlayer === 0) ? 1 : 0
-  return currentPlayer
-}
-
 handleCellClick = function() {
-  if (!Game.thereIsAWinner){
-    this.textContent = Game.players[currentPlayer].getMark()
-    Game.players[currentPlayer].setSpot(Number(this.dataset.id))
-    console.log(`player${currentPlayer} selected a tile`)
-    let thereIsAWinner = Game.checkForWinner()
-    if(thereIsAWinner) {
-      console.log(`Game winner is: ${currentPlayer}`)
+  this.textContent = Game.getCurrentPlayer().getMark()
+  
+  if (!Game.getThereIsAWinner()){
+    Game.getCurrentPlayer().setSpot(Number(this.dataset.id))
+    Game.checkForWinner()
+    
+    console.log(`player${Game.getCurrentPlayer().getMark()} selected a tile`)
+    console.log(Game.currentInfo())
+    
+    
+    if(Game.getThereIsAWinner()) {
+      console.log(`Game winner is: ${Game.getCurrentPlayer().getName()}`)
     }
     else {
-      switchPlayer()
+      Game.switchPlayer()
     }
   }
 }
@@ -286,6 +305,20 @@ handleCellClick = function() {
 Game.drawGrid()
 
 
+const simulateGame = () => {
+  Game.getCurrentPlayer().setSpot(0) // 0
+  Game.switchPlayer()
+  Game.getCurrentPlayer().setSpot(1) // 1
+  Game.switchPlayer()
+  Game.getCurrentPlayer().setSpot(3) // 0
+  Game.switchPlayer()
+  Game.getCurrentPlayer().setSpot(2) // 1
+  Game.switchPlayer()
+  Game.getCurrentPlayer().setSpot(6)
+  console.log(Game.checkForWinner())
+  console.log(Game.getThereIsAWinner())
+}
 
 const newGameButton = document.querySelector('#new-game-button')
 newGameButton.addEventListener('click', () => Game.resetBoard())
+
