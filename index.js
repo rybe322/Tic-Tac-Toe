@@ -137,24 +137,13 @@ Spot = () => {
   return {getCurrentMark, setMark, isTaken}
 }
 
-/*
-  Gameboard: 
-    - Only need 1 so using a module to make it
-*/
-const Gameboard = ( () => {
-  const gameboard = [Spot(),Spot(),Spot(),
-                     Spot(),Spot(),Spot(),
-                     Spot(),Spot(),Spot()
-                    ]
 
-  return {gameboard}
-} ) ();
+const Player = (NAME, MARK) => {
 
-
-const Player = (setName, setMark) => {
-  const name = setName
-  const mark = setMark
+  const name = NAME
+  const mark = MARK
   const currentSpots = []
+
   const getSpotCombinations = () => {
     return getPermutations(currentSpots, 3)
     if (currentSpots.length > 3) {
@@ -188,6 +177,12 @@ const Player = (setName, setMark) => {
     }
   }
 
+  const getName = () => name
+  const setName = (newName) => name = newName
+  
+  const getMark = () => mark
+  const setMark = (newMark) => mark = newMark
+
   const setSpot = (spot) => currentSpots.push(spot)
 
   const getSpots = () => currentSpots
@@ -198,7 +193,7 @@ const Player = (setName, setMark) => {
     }
   }
 
-  return {name, mark, currentSpots, getSpots, resetSpots, getSpotCombinations, setSpot}
+  return {getName, setName, getMark, setMark, getSpots, setSpot, resetSpots, getSpotCombinations}
 }
 
 
@@ -207,16 +202,12 @@ const Game = (() => {
   let roundCount = 0;
 
   let players = [Player('player1', 'X'), Player('player2', 'O')]
-  
 
   let gameWinner = ''
 
   let thereIsAWinner = gameWinner !== ''
 
   const gridContainer = document.querySelector('.grid-container')
-
-
-
 
   const checkForWinner = () => {
     for (let i = 0; i < players.length ; i++) {
@@ -249,9 +240,6 @@ const Game = (() => {
 
   }
 
-
-
-
   const currentInfo = () => {
     console.log(`Round count: ${roundCount}`)
     console.log(`player[0] current spots: ${players[0].currentSpots}`)
@@ -267,8 +255,6 @@ const Game = (() => {
       gridCell.addEventListener('click', handleCellClick)
       gridContainer.appendChild(gridCell)
     }
-
-
   }
 
   return {gameWinner, players,checkForWinner, currentInfo, resetBoard, drawGrid}
@@ -283,19 +269,13 @@ function switchPlayer() {
 }
 
 handleCellClick = function() {
-  const el1 = document.querySelector(`[data-id="${this.dataset.id}"]`);
-  console.log(el1)
-  el1.textContent='S:LDF:LKJSDJLFDK:'
   if (!Game.thereIsAWinner){
-    console.log(this)
-    this.textContent = 'DJKLSFLJKSFDKL:'
-    this.textContent = Game.players[currentPlayer].mark
+    this.textContent = Game.players[currentPlayer].getMark()
     Game.players[currentPlayer].setSpot(Number(this.dataset.id))
     console.log(`player${currentPlayer} selected a tile`)
     let thereIsAWinner = Game.checkForWinner()
     if(thereIsAWinner) {
       console.log(`Game winner is: ${currentPlayer}`)
-      
     }
     else {
       switchPlayer()
