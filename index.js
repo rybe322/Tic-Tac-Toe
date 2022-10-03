@@ -51,6 +51,10 @@ winning:
 /*
 HELPER FUNCTION FOR GETTING COMINBATIONS
 */
+
+
+
+
 var getPermutations = function(list, maxLen) {
   // Copy initial values as arrays
   var perm = list.map(function(val) {
@@ -140,8 +144,8 @@ Spot = () => {
 
 const Player = (NAME, MARK) => {
 
-  const name = NAME
-  const mark = MARK
+  let name = NAME
+  let mark = MARK
   const currentSpots = []
 
   const getSpotCombinations = () => {
@@ -196,45 +200,31 @@ const Player = (NAME, MARK) => {
   return {getName, setName, getMark, setMark, getSpots, setSpot, resetSpots, getSpotCombinations}
 }
 
-
 const Game = (() => {
-
-  let roundCount = 0;
-
   let players = [Player('player1', 'X'), Player('player2', 'O')]
 
   let gameWinner = ''
 
   let thereIsAWinner = false
+  
+  let currentPlayerIndex = 0;
 
-  const setThereIsAWinner = (isWinner) => {
-    console.log('hello from setThereIsAWinner')
-    console.log(`thereIsAWinner currently : ${thereIsAWinner}`)
-    thereIsAWinner = isWinner
-    console.log(`there is a winner after change: ${thereIsAWinner}`)
-    
-  }
-
-  const getThereIsAWinner = () => thereIsAWinner
+  let continuePlaying = true
 
   const gridContainer = document.querySelector('.grid-container')
 
-  let currentPlayerIndex = 0;
+  const getContinuePlaying = () => continuePlaying
+  const setContinuePlaying = (CONTINUEPLAYING) => continuePlaying = CONTINUEPLAYING
 
-  const setCurrentPlayer = (PLAYER) => {
-    currentPlayerIndex = PLAYER
-  }
+  const setGameWinner = () => gameWinner = getCurrentPlayer().getName()
+  const getGameWinner = () => gameWinner
 
+  const setThereIsAWinner = (isWinner) => thereIsAWinner = isWinner
+  const getThereIsAWinner = () => thereIsAWinner
+
+  const setCurrentPlayer = (NEWPLAYERINDEX) => currentPlayerIndex = NEWPLAYERINDEX
   const getCurrentPlayer = () => players[currentPlayerIndex]
-
-  const switchPlayer = () => {
-    if (currentPlayerIndex === 0) {
-      currentPlayerIndex = 1
-    }
-    else {
-      currentPlayerIndex = 0
-    }
-  }
+  const switchPlayer = () => (currentPlayerIndex === 0) ? currentPlayerIndex = 1 : currentPlayerIndex = 0
 
   const checkForWinner = () => {
     for (let i = 0; i < players.length ; i++) {
@@ -243,29 +233,29 @@ const Game = (() => {
         if (WinningCombinations.checkForWinner(currentPlayerCombinations[j])) {
           console.log('checkForWinner TRUE')
           setThereIsAWinner(true)
+          setGameWinner(getCurrentPlayer().getName())
+          // add the winner to the board
           return
-        }
-        else { // DO I NEED THIS ELSE STATEMENT?
-          setThereIsAWinner(false)
         }
       }
     }
   }
 
   const resetBoard = () => {
-    roundCount = 0;
     players[0].resetSpots()
     players[1].resetSpots()
-    thereIsAWinner = false
-    gameWinner = ''
+    setThereIsAWinner(false)
+    setCurrentPlayer(0)
+    setGameWinner('')
+    setContinuePlaying(true)
     removeAllChildNodes(gridContainer)
     drawGrid()
-
   }
 
   const currentInfo = () => {
-    console.log(`player[0] current spots: ${players[0].getSpots()}`)
-    console.log(`player[1] current spots: ${players[1].getSpots()}`)
+    console.log(`${players[0].getName()} current spots: ${players[0].getSpots()}`)
+    console.log(`${players[1].getName()} current spots: ${players[1].getSpots()}`)
+    console.log(`Current winner: ${getGameWinner()}`)
   }
 
   const drawGrid = () => {
@@ -277,12 +267,40 @@ const Game = (() => {
     }
   }
 
-  return {gameWinner, players, checkForWinner, currentInfo, resetBoard, drawGrid, 
-          switchPlayer, getCurrentPlayer, setThereIsAWinner, getThereIsAWinner}
+  const playRound = (cell) => {
+    if (getContinuePlaying() === true) {
+      cell.textContent = Game.getCurrentPlayer().getMark()
+    
+      if (!Game.getThereIsAWinner()){
+        Game.getCurrentPlayer().setSpot(Number(cell.dataset.id))
+        Game.checkForWinner()
+        console.log(Game.currentInfo())
+        
+    
+        if(Game.getThereIsAWinner()) {
+          console.log(`Game winner is: ${Game.getGameWinner()}`)
+          setContinuePlaying(false)
+        }
+        else {
+          Game.switchPlayer()
+        }
+      }
+    }
+    else {
+      console.log("Must restart game to continue")
+    }
+  }
+
+  return {getGameWinner, setGameWinner, players, checkForWinner, currentInfo, resetBoard, drawGrid, 
+          switchPlayer, getCurrentPlayer, setThereIsAWinner, getThereIsAWinner,
+          playRound
+        }
 } ) ()
 
 
 handleCellClick = function() {
+  Game.playRound(this)
+  /*
   this.textContent = Game.getCurrentPlayer().getMark()
   
   if (!Game.getThereIsAWinner()){
@@ -292,14 +310,15 @@ handleCellClick = function() {
     console.log(`player${Game.getCurrentPlayer().getMark()} selected a tile`)
     console.log(Game.currentInfo())
     
-    
+
     if(Game.getThereIsAWinner()) {
-      console.log(`Game winner is: ${Game.getCurrentPlayer().getName()}`)
+      console.log(`Game winner is: ${Game.getGameWinner()}`)
     }
     else {
       Game.switchPlayer()
     }
   }
+  */
 }
 
 Game.drawGrid()
@@ -321,4 +340,21 @@ const simulateGame = () => {
 
 const newGameButton = document.querySelector('#new-game-button')
 newGameButton.addEventListener('click', () => Game.resetBoard())
+
+const GameWinnerDrawer = (player) => {
+  
+  const drawWinner = () => {
+    const main = document.querySelector('.main-container')
+    const newDiv = document.createElement('div')
+    newDiv.textContent = `Winner is: RYAN`
+    newDiv.style.color = 'white'
+    main.appendChild(newDiv)
+  }
+
+  return {drawWinner}
+  
+}
+
+const gamewinnerdrawer = GameWinnerDrawer()
+gamewinnerdrawer.drawWinner()
 
