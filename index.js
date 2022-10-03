@@ -354,7 +354,3 @@ const GameWinnerDrawer = (player) => {
   return {drawWinner}
   
 }
-
-const gamewinnerdrawer = GameWinnerDrawer()
-gamewinnerdrawer.drawWinner()
-
